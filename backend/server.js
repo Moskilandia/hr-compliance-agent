@@ -11,8 +11,39 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from frontend dist (for production)
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// Determine the correct path for static files
+// In production (Render), files might be in different locations
+const possiblePaths = [
+  path.join(__dirname, '../frontend/dist'),  // Local development
+  path.join(__dirname, '../../frontend/dist'), // Render build
+  path.join(__dirname, 'frontend/dist'),     // Alternative
+  path.join(process.cwd(), 'frontend/dist'), // Current working directory
+];
+
+let staticPath = null;
+for (const testPath of possiblePaths) {
+  try {
+    const fs = require('fs');
+    if (fs.existsSync(testPath)) {
+      staticPath = testPath;
+      console.log('✓ Found static files at:', staticPath);
+      break;
+    }
+  } catch (e) {
+    // Continue to next path
+  }
+}
+
+if (!staticPath) {
+  console.error('✗ Could not find static files in any known location');
+  console.log('Current directory:', process.cwd());
+  console.log('__dirname:', __dirname);
+}
+
+// Serve static files
+if (staticPath) {
+  app.use(express.static(staticPath));
+}
 
 // Mock data
 const documents = [
@@ -69,7 +100,15 @@ app.post('/api/auth/login', (req, res) => {
 
 // Catch-all handler: send back React's index.html file for client-side routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  if (staticPath) {
+    res.sendFile(path.join(staticPath, 'index.html'));
+  } else {
+    res.status(500).json({ 
+      error: 'Static files not found',
+      cwd: process.cwd(),
+      dirname: __dirname
+    });
+  }
 });
 
 // Error handling
