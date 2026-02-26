@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -11,40 +12,37 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static files - try multiple locations
+// Find static files location
 const staticPaths = [
-  path.join(__dirname, 'public'),           // Render: backend/public
-  path.join(__dirname, '../frontend/dist'), // Local dev
+  path.join(__dirname, 'public'),
+  path.join(__dirname, '../frontend/dist'),
   path.join(__dirname, '../../frontend/dist'),
+  path.join(process.cwd(), 'frontend/dist'),
+  '/app/frontend/dist', // Render specific
 ];
 
 let staticPath = null;
-const fs = require('fs');
-
 for (const testPath of staticPaths) {
   if (fs.existsSync(testPath)) {
     const indexPath = path.join(testPath, 'index.html');
     if (fs.existsSync(indexPath)) {
       staticPath = testPath;
-      console.log('✓ Serving static files from:', staticPath);
+      console.log('✓ Found static files at:', staticPath);
       break;
     }
   }
 }
 
-if (!staticPath) {
-  console.error('✗ ERROR: Could not find index.html in any location');
-  console.log('Checked paths:', staticPaths);
-  console.log('Current directory:', __dirname);
-  console.log('Files in __dirname:', fs.readdirSync(__dirname));
-}
-
-// Serve static files
+// IMPORTANT: Serve static files BEFORE API routes and catch-all
+// This ensures /static/js/... and /static/css/... work correctly
 if (staticPath) {
   app.use(express.static(staticPath));
+  console.log('✓ Serving static files from:', staticPath);
+} else {
+  console.error('✗ ERROR: Static files not found');
 }
 
-// API Routes
+// API Routes (these should work alongside static files)
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -66,7 +64,18 @@ const employees = [
 ];
 
 app.get('/api/documents', (req, res) => res.json(documents));
+app.get('/api/documents/:id', (req, res) => {
+  const doc = documents.find(d => d.id === req.params.id);
+  if (!doc) return res.status(404).json({ error: 'Document not found' });
+  res.json(doc);
+});
+
 app.get('/api/employees', (req, res) => res.json(employees));
+app.get('/api/employees/:id', (req, res) => {
+  const emp = employees.find(e => e.id === req.params.id);
+  if (!emp) return res.status(404).json({ error: 'Employee not found' });
+  res.json(emp);
+});
 
 app.post('/api/auth/login', (req, res) => {
   res.json({
@@ -75,20 +84,19 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// Catch-all: serve React app
+// Catch-all: serve React app (MUST be last, after static files and API)
 app.get('*', (req, res) => {
   if (staticPath) {
     res.sendFile(path.join(staticPath, 'index.html'));
   } else {
     res.status(500).json({ 
       error: 'Frontend not built',
-      message: 'Static files not found. Please check build logs.',
-      cwd: process.cwd(),
-      dirname: __dirname
+      message: 'Static files not found'
     });
   }
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Static path: ${staticPath}`);
 });
