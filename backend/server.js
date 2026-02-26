@@ -11,39 +11,47 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Determine the correct path for static files
-// In production (Render), files might be in different locations
-const possiblePaths = [
-  path.join(__dirname, '../frontend/dist'),  // Local development
-  path.join(__dirname, '../../frontend/dist'), // Render build
-  path.join(__dirname, 'frontend/dist'),     // Alternative
-  path.join(process.cwd(), 'frontend/dist'), // Current working directory
+// Static files - try multiple locations
+const staticPaths = [
+  path.join(__dirname, 'public'),           // Render: backend/public
+  path.join(__dirname, '../frontend/dist'), // Local dev
+  path.join(__dirname, '../../frontend/dist'),
 ];
 
 let staticPath = null;
-for (const testPath of possiblePaths) {
-  try {
-    const fs = require('fs');
-    if (fs.existsSync(testPath)) {
+const fs = require('fs');
+
+for (const testPath of staticPaths) {
+  if (fs.existsSync(testPath)) {
+    const indexPath = path.join(testPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
       staticPath = testPath;
-      console.log('✓ Found static files at:', staticPath);
+      console.log('✓ Serving static files from:', staticPath);
       break;
     }
-  } catch (e) {
-    // Continue to next path
   }
 }
 
 if (!staticPath) {
-  console.error('✗ Could not find static files in any known location');
-  console.log('Current directory:', process.cwd());
-  console.log('__dirname:', __dirname);
+  console.error('✗ ERROR: Could not find index.html in any location');
+  console.log('Checked paths:', staticPaths);
+  console.log('Current directory:', __dirname);
+  console.log('Files in __dirname:', fs.readdirSync(__dirname));
 }
 
 // Serve static files
 if (staticPath) {
   app.use(express.static(staticPath));
 }
+
+// API Routes
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    staticPath: staticPath || 'NOT FOUND'
+  });
+});
 
 // Mock data
 const documents = [
@@ -57,67 +65,30 @@ const employees = [
   { id: '2', name: 'Marcus Johnson', email: 'marcus.j@company.com', role: 'Product Manager', department: 'Product', status: 'active', joinDate: '2021-08-22', documentsSigned: 7, documentsPending: 0 },
 ];
 
-// API Routes
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+app.get('/api/documents', (req, res) => res.json(documents));
+app.get('/api/employees', (req, res) => res.json(employees));
 
-// Documents API
-app.get('/api/documents', (req, res) => {
-  res.json(documents);
-});
-
-app.get('/api/documents/:id', (req, res) => {
-  const doc = documents.find(d => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: 'Document not found' });
-  res.json(doc);
-});
-
-// Employees API
-app.get('/api/employees', (req, res) => {
-  res.json(employees);
-});
-
-app.get('/api/employees/:id', (req, res) => {
-  const emp = employees.find(e => e.id === req.params.id);
-  if (!emp) return res.status(404).json({ error: 'Employee not found' });
-  res.json(emp);
-});
-
-// Auth API
 app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
   res.json({
     token: 'mock-jwt-token',
-    user: {
-      id: '1',
-      name: 'Admin User',
-      email: email,
-      role: 'HR Manager'
-    }
+    user: { id: '1', name: 'Admin User', email: req.body.email, role: 'HR Manager' }
   });
 });
 
-// Catch-all handler: send back React's index.html file for client-side routing
+// Catch-all: serve React app
 app.get('*', (req, res) => {
   if (staticPath) {
     res.sendFile(path.join(staticPath, 'index.html'));
   } else {
     res.status(500).json({ 
-      error: 'Static files not found',
+      error: 'Frontend not built',
+      message: 'Static files not found. Please check build logs.',
       cwd: process.cwd(),
       dirname: __dirname
     });
   }
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`API available at http://localhost:${PORT}/api`);
 });
