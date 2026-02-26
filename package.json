@@ -1,7 +1,4 @@
 {
   "name": "hr-compliance-agent",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "cd frontend && npm install && npm run build && cp -r dist ../"
-  }
+  "version": "1.0.0"
 }
