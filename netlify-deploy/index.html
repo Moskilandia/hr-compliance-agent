@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kimi HR</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000000;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      margin-left: 12px;
+    }
+    .hero {
+      text-align: center;
+      padding: 100px 20px;
+    }
+    h1 {
+      font-size: 64px;
+      font-weight: bold;
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #A78BFA, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      font-size: 20px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .features {
+      padding: 80px 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .features h2 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 48px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 32px;
+    }
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .card h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .card p {
+      color: rgba(255,255,255,0.5);
+    }
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.4);
+    }
+  </style>
+</head>
+<body>
+  <nav class="container">
+    <div class="logo">
+      <div class="logo-icon">✨</div>
+      <span>Kimi HR</span>
+    </div>
+    <a href="#" class="btn">Get Started</a>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <h1>
+        <span class="gradient-text">HR Intelligence</span><br>
+        Reimagined
+      </h1>
+      <p class="subtitle">
+        Experience the future of HR management with AI-powered insights 
+        and automated compliance tracking.
+      </p>
+      <div>
+        <a href="#" class="btn">Start Free Trial →</a>
+        <a href="#" class="btn btn-outline">Watch Demo</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="container">
+      <h2 class="gradient-text">Everything You Need</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon">📄</div>
+          <h3>Smart Documents</h3>
+          <p>AI-powered document management with auto-categorization.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛡️</div>
+          <h3>Secure E-Signatures</h3>
+          <p>Bank-grade encryption with legally binding signatures.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">👥</div>
+          <h3>Employee Portal</h3>
+          <p>Self-service portal for employees to access documents.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <h3>Auto Compliance</h3>
+          <p>Automated compliance tracking with real-time alerts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      © 2024 Kimi HR. Powered by K2.5 Intelligence.
+    </div>
+  </footer>
+</body>
+</html>
