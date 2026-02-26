@@ -1,0 +1,79 @@
+# Multi-Platform Deployment Configuration
+# This file configures deployment for multiple platforms
+
+name: hr-compliance-agent
+
+# Build configuration
+build:
+  # Frontend build
+  frontend:
+    command: cd frontend && npm install && npm run build
+    output: frontend/dist
+  
+  # Backend build
+  backend:
+    command: cd backend && npm install
+    start: node server.js
+
+# Platform-specific configurations
+platforms:
+  # Render.com - Fullstack deployment
+  render:
+    type: web
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: |
+      cd frontend && npm install && npm run build
+      cd ../backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      NODE_ENV: production
+      PORT: 10000
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+  # Railway.app - Fullstack deployment
+  railway:
+    type: web
+    build:
+      builder: NIXPACKS
+    deploy:
+      startCommand: cd backend && node server.js
+      healthcheckPath: /api/health
+      restartPolicy: ON_FAILURE
+
+  # Vercel - Frontend only (requires separate backend)
+  vercel:
+    type: static
+    buildCommand: cd frontend && npm install && npm run build
+    outputDirectory: frontend/dist
+    rewrites:
+      - source: /api/(.*)
+        destination: https://your-backend-url.com/api/$1
+
+  # Fly.io - Fullstack with Docker
+  fly:
+    app: hr-compliance-agent
+    primary_region: lax
+    [build]
+      dockerfile = "Dockerfile"
+    [http_service]
+      internal_port = 3001
+      force_https = true
+      auto_stop_machines = true
+      auto_start_machines = true
+      min_machines_running = 0
+
+  # Netlify - Frontend only
+  netlify:
+    build:
+      command: cd frontend && npm install && npm run build
+      publish: frontend/dist
+    redirects:
+      - from: /api/*
+        to: https://your-backend-url.com/api/:splat
+        status: 200
+      - from: /*
+        to: /index.html
+        status: 200
