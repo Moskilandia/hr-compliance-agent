@@ -1,10 +1,32 @@
 services:
+  # Static site for frontend
+  - type: static
+    name: hr-compliance-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://hr-compliance-api.onrender.com/api/
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # Web service for backend
   - type: web
-    name: hr-compliance-agent
+    name: hr-compliance-api
     runtime: node
     region: oregon
     plan: free
-    buildCommand: ./render-build.sh
+    buildCommand: cd backend && npm install
     startCommand: cd backend && node server.js
     envVars:
       - key: NODE_ENV
