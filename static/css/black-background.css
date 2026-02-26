@@ -1,5 +1,39 @@
-/* Force black background override */
-body, html, #root {
+/* Force black background everywhere */
+html, 
+body, 
+#root,
+#root > div,
+#root > div > div,
+.app,
+.landing-page,
+.landing-page > div,
+.landing-page > div > div,
+nav,
+header,
+section,
+footer,
+button,
+.btn,
+.card,
+.glass,
+.glass-card {
   background-color: #000000 !important;
   background: #000000 !important;
+}
+
+/* Keep buttons visible with borders */
+button,
+.btn {
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Ensure text is visible on black */
+body {
+  color: #ffffff !important;
+}
+
+/* Override any gradient backgrounds */
+[style*="background"],
+[class*="bg-"] {
+  background-color: #000000 !important;
 }
